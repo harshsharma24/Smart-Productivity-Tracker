@@ -146,9 +146,27 @@ def delete_task_ui():
             else:
                 st.error("Please enter a valid numeric ID")
 
-def main():
+def main():    
     st.title("Smart Productivity Tracker")
+
+    uploaded_file=st.file_uploader("📤 Upload a tasks file (.json)", type="json")
+
+    if uploaded_file and "tasks_loaded_from_file" not in st.session_state:
+        try:
+            uploaded_tasks=json.load(uploaded_file)
+            if isinstance(uploaded_tasks,list):
+                st.session_state.tasks=uploaded_tasks
+                st.session_state.tasks_loaded_from_file= True
+                st.success("Tasks Loaded Successfully")
+            else:
+                st.error("Invalid File Format")
+        except Exception as e:
+            st.error(f"Error loading file: {e}")
+
     choice = st.radio("Choose an Option:", ["Add Task", "Show all Tasks", "Delete Task"])
+
+    if "tasks" not in st.session_state:
+        st.session_state.tasks = []
 
     if choice == "Add Task":
         add_task_ui()
