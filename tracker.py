@@ -2,51 +2,6 @@ import streamlit as st
 import json
 from azure.storage.blob import BlobClient
 
-# to_do=[]
-
-# def add_task(task):
-#     to_do.append(task)
-#     print(task)
-#     return task
-
-# def mark_task(id):
-#     for i , work in enumerate(to_do):
-#         if (work['id']) == id:
-#             to_do.pop((i))
-#             print("Deleted")
-#             return
-#     print("Not Found")
-
-# def show_list():
-#     print(to_do)
-
-# def menu():
-#     while True:
-#         print("\n Menu: 1 for Adding task 2 for print list 3 to delete task")
-        
-#         choice=input("Enter Choice : ")
-        
-
-#         if choice == "1":
-#             print("You need to add task")
-#             id= len(to_do)+1
-#             work=input("Enter Work : ")
-#             add_task({"id": id, "work" : work})
-
-#         elif choice=="2":
-#             show_list()
-
-#         elif choice=="3":
-#             print("Mark task as completed")
-#             id= int(input("Enter id to delete "))
-#             mark_task(id)
-            
-#         else:
-#             print("Invalid Choice")
-#             return False
-
-# menu()
-
 
 def add_task(task):
     if not task.strip():
