@@ -1,5 +1,6 @@
 import streamlit as st
 import json
+from azure.storage.blob import BlobClient
 
 # to_do=[]
 
@@ -64,6 +65,7 @@ def mark_task(id):
             return True
     return False
 
+
 def show_tasks_ui():
     st.subheader="Tasks"
 
@@ -78,6 +80,10 @@ def show_tasks_ui():
             file_name="my_tasks.json",
             mime="application/json"
         )
+    
+
+    upload_to_blob_storage(tasks_json, "my_tasks.json")
+
 
     with top_col1:
         if not st.session_state.tasks:
@@ -113,7 +119,7 @@ def show_tasks_ui():
             with col1:
                 st.markdown(f"**{task['id']}** {task['task']}")
             with col2:
-                checked = st.checkbox("Done", key=f"done_{task['id']}", value=task['done'])
+                checked = st.checkbox("Done", key=f"done_{task['id']}_{i}", value=task['done'])
                 st.session_state.tasks[i]['done'] = checked
 
 
@@ -146,6 +152,21 @@ def delete_task_ui():
             else:
                 st.error("Please enter a valid numeric ID")
 
+def upload_to_blob_storage(file_data, file_name):
+    try:
+        sas_token = "sv=2024-11-04&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2025-07-24T14:49:44Z&st=2025-07-24T06:34:44Z&spr=https&sig=PDXW6RCPtB%2Br2P62h%2FErdMX3erx4dVyJMywBYtenMI0%3D"
+        account_name = "smartproductivity"
+        container_name = "todo"
+
+        blob_url = f"https://{account_name}.blob.core.windows.net/{container_name}/{file_name}?{sas_token}"
+
+        blob_client = BlobClient.from_blob_url(blob_url)
+        blob_client.upload_blob(file_data, overwrite=True)
+
+        st.success(f"✅ File uploaded to Azure Blob: {file_name}")
+    except Exception as e:
+        st.error(f"❌ Upload failed: {e}")
+
 def main():    
     st.title("Smart Productivity Tracker")
 
@@ -154,9 +175,19 @@ def main():
     if uploaded_file and "tasks_loaded_from_file" not in st.session_state:
         try:
             uploaded_tasks=json.load(uploaded_file)
+
             if isinstance(uploaded_tasks,list):
-                st.session_state.tasks=uploaded_tasks
-                st.session_state.tasks_loaded_from_file= True
+                #check existing Ids
+                existing_ids={task['id'] for task in st.session_state.tasks}
+                next_id=max(existing_ids, default=0)+1
+
+                for task in uploaded_tasks:
+                    if task['id'] in existing_ids:
+                        continue
+                
+                    task['id'] = next_id
+                    st.session_state.tasks.append(task)
+
                 st.success("Tasks Loaded Successfully")
             else:
                 st.error("Invalid File Format")
