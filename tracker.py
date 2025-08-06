@@ -1,6 +1,9 @@
 import streamlit as st
 import json
 from azure.storage.blob import BlobClient
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 
 def add_task(task):
@@ -109,7 +112,7 @@ def delete_task_ui():
 
 def upload_to_blob_storage(file_data, file_name):
     try:
-        sas_token = "sv=2024-11-04&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2025-07-24T14:49:44Z&st=2025-07-24T06:34:44Z&spr=https&sig=PDXW6RCPtB%2Br2P62h%2FErdMX3erx4dVyJMywBYtenMI0%3D"
+        sas_token =    os.getenv("SAS_TOKEN")
         account_name = "smartproductivity"
         container_name = "todo"
 
